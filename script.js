@@ -1,88 +1,88 @@
-const statusDisplay = document.querySelector('.game--status')
+const statusJogo = document.querySelector('.status')
 
-let gameActive = true
+let jogoAtivo = true
 
-let currentPlayer = 'X'
+let jogador = "X"
 
-let gameState = ["", "", "", "", "", "", "", "", ""]
+tabuleiro = ["", "", "", "", "", "", "", "", "",]
 
-const winningMessage = () => `Player ${currentPlayer} won the game`
 
-const drawMessage = () => `The game endede in a draw`
+const msgVitoria = () => `Jogador: ${jogador} venceu`
 
-const currentPlayerTurn = () => `It's ${currentPlayer}'s turn`
+const msgEmpate = () => `O jogo empatou`
 
-const winningConditions = [
+const jogadorAtivo = () => `Vez do jogador: ${jogador}`
+
+statusJogo.innerHTML = jogadorAtivo()
+
+function preencherTabuleiro(celulaClicada, valorCelula) {
+    tabuleiro[valorCelula] = jogador
+    celulaClicada.innerHTML = jogador
+}
+
+function trocarJogador() {
+    jogador = jogador === "X" ? "O" : "X"
+    statusJogo.innerHTML = jogadorAtivo()
+}
+const condVitoria = [
     [0, 1, 2],
-    [0, 3, 6],
     [3, 4, 5],
     [6, 7, 8],
+    [0, 3, 6],
+    [1, 4, 7],
     [2, 5, 8],
-    [2, 4, 6],
     [0, 4, 8],
-    [1, 4, 7]
+    [2, 4, 6],
 ]
 
-statusDisplay.innerHTML = currentPlayerTurn()
 
-function handleCellPlayed(clickedCell, clickedCellIndex) {
-    gameState[clickedCellIndex] = currentPlayer
-    clickedCell.innerHTML = currentPlayer
-}
 
-function handlePlayerChange() {
-    currentPlayer = currentPlayer === "X" ? "O" : "X"
-    statusDisplay.innerHTML = currentPlayerTurn()
-}
-
-function handleResultValidation() {
-    let roundwon = false
-    for (let i = 0; i <= 7; i++) {
-        const winCondition = winningConditions[i]
-        let a = gameState[winCondition[0]]
-        let b = gameState[winCondition[1]]
-        let c = gameState[winCondition[2]]
-        if (a === '' || b === '' || c === '') {
+function verificarResultado() {
+    let partidaGanha = false
+    for(let i = 0; i<=7; i++) {
+        const posssibilidadeVitoria = condVitoria[i]
+        let a = tabuleiro[posssibilidadeVitoria[0]]
+        let b = tabuleiro[posssibilidadeVitoria[1]]
+        let c = tabuleiro[posssibilidadeVitoria[2]]
+        if (a === "" || b === "" || c === "") {
             continue
         }
         if (a === b && b === c) {
-            roundwon = true
+            partidaGanha = true
             break
         }
     }
-if (roundwon) {
-    statusDisplay.innerHTML = winningMessage()
-    gameActive = false
+if (partidaGanha) {
+    statusJogo.innerHTML = msgVitoria()
+    jogoAtivo = false
     return
 }
-
-    let roundDraw = !gameState.includes("")
-    if (roundDraw) {
-        statusDisplay.innerHTML = drawMessage()
-        gameActive = false
+    let empate = !tabuleiro.includes("")
+    if (empate) {
+        statusJogo.innerHTML = msgEmpate()
+        jogoAtivo = false
         return
     }
-    
-    handlePlayerChange()
+    trocarJogador()
 }
 
-function handleCellClick(clickedCellEvent) {
-    const clickedCell = clickedCellEvent.target
-    const clickedCellIndex = Number(clickedCell.getAttribute('data-cell-index'))
-    if (gameState[clickedCellIndex] !== "" || !gameActive) {
+function cliquecell(celulaclicadaEvent) {
+    const celulaClicada = celulaclicadaEvent.target
+    const valorCelula = Number(celulaClicada.getAttribute('data-cell-index'))
+    if (tabuleiro[valorCelula] !== "" || !jogoAtivo) {
         return
     }
-    handleCellPlayed(clickedCell, clickedCellIndex)
-    handleResultValidation()
+    preencherTabuleiro(celulaClicada, valorCelula)
+    verificarResultado()
 }
 
-function handleRestartGame() {
-    gameActive = true
-    currentPlayer = "X"
-    gameState = ["", "", "", "", "", "", "", "", ""]
-    statusDisplay.innerHTML = currentPlayerTurn()
+function resetar() {
+    jogoAtivo = true
+    jogador = "X"
+    tabuleiro = ["", "", "", "", "", "", "", "", "",]
+    statusJogo.innerHTML = jogadorAtivo()
     document.querySelectorAll('.cell').forEach(cell => cell.innerHTML = "")
 }
 
-document.querySelectorAll('.cell').forEach(cell => cell.addEventListener('click', handleCellClick))
-document.querySelector('.game--restart').addEventListener('click', handleRestartGame)
+document.querySelectorAll('.cell').forEach(cell => cell.addEventListener('click', cliquecell))
+document.querySelector('.resetar').addEventListener('click', resetar)
